@@ -1,0 +1,1342 @@
+/* =====================================================
+   QUẢN LÝ RỬA XE - GIAO DIỆN CHUYÊN NGHIỆP
+   ===================================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+
+    font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Arial,
+        sans-serif;
+
+    background:
+        linear-gradient(
+            180deg,
+            #eaf5ff 0%,
+            #f5f8fc 35%,
+            #f3f5f8 100%
+        );
+
+    color: #172033;
+
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+
+    min-height: 100vh;
+}
+
+
+/* =====================================================
+   HEADER
+   ===================================================== */
+
+.header {
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            135deg,
+            #0879ff 0%,
+            #005bea 50%,
+            #003fb8 100%
+        );
+
+    color: white;
+
+    text-align: center;
+
+    padding:
+        24px
+        15px
+        28px;
+
+    box-shadow:
+        0 8px 25px
+        rgba(0, 91, 234, 0.25);
+}
+
+
+/* hiệu ứng nước */
+
+.header::before {
+    content: "";
+
+    position: absolute;
+
+    width: 220px;
+    height: 220px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.08);
+
+    top: -100px;
+    left: -80px;
+}
+
+.header::after {
+    content: "";
+
+    position: absolute;
+
+    width: 180px;
+    height: 180px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(255,255,255,0.06);
+
+    bottom: -100px;
+    right: -50px;
+}
+
+
+.header h1 {
+    position: relative;
+
+    z-index: 2;
+
+    margin: 0;
+
+    font-size: 25px;
+
+    font-weight: 800;
+
+    letter-spacing: -0.5px;
+
+    text-shadow:
+        0 2px 5px
+        rgba(0,0,0,0.15);
+}
+
+
+#currentDate {
+    position: relative;
+
+    z-index: 2;
+
+    margin-top: 7px;
+
+    font-size: 14px;
+
+    font-weight: 500;
+
+    opacity: 0.92;
+}
+
+
+/* =====================================================
+   CONTAINER
+   ===================================================== */
+
+.container {
+
+    width: 100%;
+
+    max-width: 680px;
+
+    margin: auto;
+
+    padding:
+        14px
+        12px
+        40px;
+}
+
+
+/* =====================================================
+   CARD
+   ===================================================== */
+
+.card {
+
+    background:
+        rgba(255,255,255,0.96);
+
+    border-radius: 18px;
+
+    padding: 17px;
+
+    margin-bottom: 14px;
+
+    border:
+        1px solid
+        rgba(255,255,255,0.8);
+
+    box-shadow:
+        0 5px 20px
+        rgba(23,32,51,0.07);
+
+    backdrop-filter:
+        blur(8px);
+
+    -webkit-backdrop-filter:
+        blur(8px);
+}
+
+
+.card h2 {
+
+    margin:
+        0
+        0
+        14px;
+
+    font-size: 18px;
+
+    font-weight: 750;
+
+    letter-spacing:
+        -0.3px;
+
+    color: #172033;
+}
+
+
+/* =====================================================
+   SUMMARY
+   ===================================================== */
+
+.summary {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 10px;
+
+    margin-bottom: 14px;
+}
+
+
+.summary-box {
+
+    position: relative;
+
+    overflow: hidden;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f5f8fc
+        );
+
+    border-radius: 16px;
+
+    padding:
+        15px
+        10px;
+
+    text-align: center;
+
+    border:
+        1px solid
+        #e8edf4;
+
+    box-shadow:
+        0 4px 15px
+        rgba(23,32,51,0.06);
+}
+
+
+.summary-box::after {
+
+    content: "";
+
+    position: absolute;
+
+    width: 50px;
+    height: 50px;
+
+    border-radius: 50%;
+
+    background:
+        rgba(22,119,255,0.05);
+
+    right: -15px;
+    bottom: -15px;
+}
+
+
+.summary-box span {
+
+    display: block;
+
+    color: #6b7280;
+
+    font-size: 12px;
+
+    font-weight: 600;
+}
+
+
+.summary-box strong {
+
+    position: relative;
+
+    z-index: 2;
+
+    display: block;
+
+    margin-top: 6px;
+
+    font-size: 19px;
+
+    font-weight: 800;
+
+    letter-spacing:
+        -0.4px;
+
+    color: #0879ff;
+}
+
+
+/* =====================================================
+   LABEL
+   ===================================================== */
+
+label {
+
+    display: block;
+
+    margin-top: 13px;
+
+    margin-bottom: 7px;
+
+    color: #374151;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   INPUT
+   ===================================================== */
+
+input {
+
+    width: 100%;
+
+    height: 50px;
+
+    border:
+        1.5px solid
+        #dce3ec;
+
+    border-radius: 13px;
+
+    padding:
+        0
+        14px;
+
+    font-family: inherit;
+
+    font-size: 16px;
+
+    font-weight: 500;
+
+    color: #172033;
+
+    background: #fbfcfe;
+
+    outline: none;
+
+    transition:
+        0.2s ease;
+
+    box-shadow:
+        inset 0 1px 2px
+        rgba(0,0,0,0.02);
+}
+
+
+input::placeholder {
+    color: #9ca3af;
+}
+
+
+input:focus {
+
+    border-color:
+        #1683ff;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(22,119,255,0.10);
+}
+
+
+/* =====================================================
+   SERVICES
+   ===================================================== */
+
+.service-list {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 9px;
+}
+
+
+.service-button {
+
+    position: relative;
+
+    min-height: 76px;
+
+    padding:
+        10px 7px;
+
+    border:
+        1.5px solid
+        #dce3ec;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            145deg,
+            #ffffff,
+            #f5f7fa
+        );
+
+    color: #253047;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease,
+        background 0.15s ease,
+        border 0.15s ease;
+
+    box-shadow:
+        0 2px 7px
+        rgba(0,0,0,0.04);
+}
+
+
+.service-button:hover {
+
+    border-color:
+        #9fc8ff;
+
+    box-shadow:
+        0 5px 13px
+        rgba(22,119,255,0.10);
+}
+
+
+.service-button:active {
+
+    transform:
+        scale(0.97);
+}
+
+
+.service-button span {
+
+    display: block;
+
+    margin-top: 6px;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    color: #0879ff;
+}
+
+
+.service-button.selected {
+
+    background:
+        linear-gradient(
+            135deg,
+            #0879ff,
+            #005bea
+        );
+
+    color: white;
+
+    border-color:
+        #0879ff;
+
+    box-shadow:
+        0 6px 15px
+        rgba(0,91,234,0.25);
+
+    transform:
+        translateY(-1px);
+}
+
+
+.service-button.selected span {
+
+    color: white;
+}
+
+
+/* =====================================================
+   SELECTED SERVICES
+   ===================================================== */
+
+.selected-box {
+
+    margin-top: 13px;
+
+    padding: 13px;
+
+    background:
+        #f5f8fc;
+
+    border:
+        1px solid
+        #e5eaf1;
+
+    border-radius: 13px;
+}
+
+
+.selected-service {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap: 8px;
+
+    padding:
+        9px 0;
+
+    border-bottom:
+        1px solid
+        #e1e6ed;
+
+    font-size: 14px;
+
+    font-weight: 600;
+}
+
+
+.selected-service:last-child {
+    border-bottom: none;
+}
+
+
+.remove-service {
+
+    min-width: 32px;
+
+    height: 30px;
+
+    margin: 0;
+
+    padding:
+        0
+        8px;
+
+    border: none;
+
+    border-radius: 8px;
+
+    background:
+        #ef4444;
+
+    color: white;
+
+    font-size: 13px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+}
+
+
+.remove-service:active {
+
+    transform:
+        scale(0.92);
+}
+
+
+/* =====================================================
+   TOTAL
+   ===================================================== */
+
+.order-total {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    margin-top: 11px;
+
+    padding-top: 12px;
+
+    border-top:
+        1px solid
+        #dce3ec;
+
+    font-size: 17px;
+
+    font-weight: 700;
+}
+
+
+.order-total strong {
+
+    color:
+        #16a34a;
+
+    font-size: 21px;
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   PAYMENT
+   ===================================================== */
+
+.payment-buttons {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 9px;
+}
+
+
+.payment-button {
+
+    height: 50px;
+
+    border:
+        1.5px solid
+        #dce3ec;
+
+    border-radius: 13px;
+
+    background:
+        #f5f7fa;
+
+    color: #374151;
+
+    font-family: inherit;
+
+    font-size: 14px;
+
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+        0.15s ease;
+}
+
+
+.payment-button:active {
+
+    transform:
+        scale(0.97);
+}
+
+
+.payment-button.active {
+
+    background:
+        linear-gradient(
+            135deg,
+            #0879ff,
+            #005bea
+        );
+
+    color: white;
+
+    border-color:
+        #0879ff;
+
+    box-shadow:
+        0 5px 13px
+        rgba(0,91,234,0.22);
+}
+
+
+/* =====================================================
+   ADD BUTTON
+   ===================================================== */
+
+.add-button {
+
+    width: 100%;
+
+    height: 55px;
+
+    margin-top: 16px;
+
+    border: none;
+
+    border-radius: 14px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #18b866,
+            #0f9f55
+        );
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+    letter-spacing:
+        -0.2px;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 7px 17px
+        rgba(15,159,85,0.22);
+
+    transition:
+        0.15s ease;
+}
+
+
+.add-button:active {
+
+    transform:
+        scale(0.98);
+
+    box-shadow:
+        0 3px 8px
+        rgba(15,159,85,0.18);
+}
+
+
+/* =====================================================
+   ORDER
+   ===================================================== */
+
+.order {
+
+    padding: 14px;
+
+    margin-top: 11px;
+
+    border:
+        1px solid
+        #e3e8ef;
+
+    border-radius: 15px;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 3px 12px
+        rgba(23,32,51,0.05);
+}
+
+
+.order-top {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        flex-start;
+
+    gap: 10px;
+}
+
+
+.order-plate {
+
+    font-size: 17px;
+
+    font-weight: 750;
+
+    line-height: 1.5;
+}
+
+
+.order-plate span {
+
+    color:
+        #0879ff;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+.order-price {
+
+    color:
+        #16a34a;
+
+    font-size: 18px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+.order-service {
+
+    margin-top: 7px;
+
+    line-height: 1.65;
+
+    color: #374151;
+
+    font-size: 14px;
+
+    font-weight: 500;
+}
+
+
+.order-payment {
+
+    display: inline-block;
+
+    margin-top: 8px;
+
+    padding:
+        5px
+        9px;
+
+    border-radius: 8px;
+
+    background:
+        #eef5ff;
+
+    color:
+        #1265cf;
+
+    font-size: 13px;
+
+    font-weight: 700;
+}
+
+
+/* =====================================================
+   NHÂN VIÊN
+   ===================================================== */
+
+.order-employee {
+
+    margin-top: 8px;
+
+    padding:
+        8px
+        10px;
+
+    border-radius: 9px;
+
+    background:
+        #fff7ed;
+
+    color:
+        #9a3412;
+
+    font-size: 13px;
+
+    font-weight: 600;
+}
+
+
+.order-employee strong {
+
+    font-weight: 800;
+}
+
+
+/* =====================================================
+   DOANH THU THỰC NHẬN
+   ===================================================== */
+
+.order-revenue {
+
+    margin-top: 7px;
+
+    padding:
+        9px
+        10px;
+
+    border-radius: 9px;
+
+    background:
+        #ecfdf5;
+
+    color:
+        #166534;
+
+    font-size: 14px;
+
+    font-weight: 700;
+}
+
+
+.order-revenue strong {
+
+    font-size: 16px;
+
+    font-weight: 800;
+}
+
+
+.order-time {
+
+    margin-top: 7px;
+
+    color:
+        #9ca3af;
+
+    font-size: 12px;
+
+    font-weight: 500;
+}
+
+
+/* =====================================================
+   ORDER BUTTONS
+   ===================================================== */
+
+.order-buttons {
+
+    display: grid;
+
+    grid-template-columns:
+        1fr 1fr;
+
+    gap: 8px;
+
+    margin-top: 11px;
+}
+
+
+.change-payment,
+.delete-order {
+
+    height: 43px;
+
+    border: none;
+
+    border-radius: 10px;
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 13px;
+
+    font-weight: 750;
+
+    cursor: pointer;
+
+    transition:
+        0.15s ease;
+}
+
+
+.change-payment {
+
+    background:
+        #0879ff;
+}
+
+
+.delete-order {
+
+    background:
+        #ef4444;
+}
+
+
+.change-payment:active,
+.delete-order:active {
+
+    transform:
+        scale(0.97);
+}
+
+
+/* =====================================================
+   HISTORY BUTTON
+   ===================================================== */
+
+.history-button {
+
+    width: 100%;
+
+    height: 48px;
+
+    border: none;
+
+    border-radius: 12px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #7c3aed,
+            #5b21b6
+        );
+
+    color: white;
+
+    font-family: inherit;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 5px 14px
+        rgba(91,33,182,0.20);
+}
+
+
+/* =====================================================
+   HISTORY DAY
+   ===================================================== */
+
+.history-day {
+
+    margin-top: 12px;
+
+    border:
+        1px solid
+        #e0e6ee;
+
+    border-radius: 14px;
+
+    overflow: hidden;
+
+    background:
+        #ffffff;
+
+    box-shadow:
+        0 3px 10px
+        rgba(23,32,51,0.04);
+}
+
+
+.history-day-header {
+
+    padding: 13px;
+
+    background:
+        linear-gradient(
+            135deg,
+            #f7f9fc,
+            #eef3f9
+        );
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    gap: 10px;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+
+.history-day-header strong {
+
+    font-size: 15px;
+
+    font-weight: 800;
+}
+
+
+.history-day-header span {
+
+    display: inline-block;
+
+    margin-top: 4px;
+
+    color:
+        #0879ff;
+
+    font-size: 12px;
+
+    font-weight: 700;
+
+    line-height: 1.5;
+}
+
+
+.history-day-header:active {
+
+    opacity:
+        0.75;
+}
+
+
+.history-day-content {
+
+    display: none;
+}
+
+
+.history-day.open
+.history-day-content {
+
+    display: block;
+}
+
+
+.history-arrow {
+
+    font-size: 17px;
+
+    transition:
+        transform 0.2s;
+}
+
+
+.history-day.open
+.history-arrow {
+
+    transform:
+        rotate(180deg);
+}
+
+
+/* =====================================================
+   HISTORY ORDER
+   ===================================================== */
+
+.history-order {
+
+    padding: 13px;
+
+    border-top:
+        1px solid
+        #edf0f4;
+}
+
+
+.history-order-top {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap: 10px;
+}
+
+
+.history-order-top strong {
+
+    font-size: 15px;
+
+    font-weight: 750;
+}
+
+
+.history-order-top b {
+
+    color:
+        #16a34a;
+
+    font-size: 15px;
+
+    font-weight: 800;
+
+    white-space: nowrap;
+}
+
+
+/* =====================================================
+   EMPTY
+   ===================================================== */
+
+.empty {
+
+    text-align: center;
+
+    color:
+        #9ca3af;
+
+    padding:
+        25px 15px;
+
+    font-size: 14px;
+
+    font-weight: 500;
+}
+
+
+/* =====================================================
+   MOBILE
+   ===================================================== */
+
+@media (max-width: 480px) {
+
+    .header {
+
+        padding:
+            21px
+            12px
+            25px;
+    }
+
+    .header h1 {
+
+        font-size: 21px;
+    }
+
+    .container {
+
+        padding:
+            10px
+            8px
+            35px;
+    }
+
+    .card {
+
+        padding: 13px;
+
+        border-radius: 16px;
+    }
+
+    .card h2 {
+
+        font-size: 17px;
+    }
+
+    .summary {
+
+        gap: 8px;
+    }
+
+    .summary-box {
+
+        padding:
+            13px
+            8px;
+    }
+
+    .summary-box strong {
+
+        font-size: 16px;
+    }
+
+    .service-list {
+
+        gap: 8px;
+    }
+
+    .service-button {
+
+        min-height: 72px;
+
+        font-size: 12px;
+    }
+
+    .service-button span {
+
+        font-size: 14px;
+    }
+
+    .order {
+
+        padding: 12px;
+    }
+
+    .order-price {
+
+        font-size: 16px;
+    }
+
+    .order-plate {
+
+        font-size: 16px;
+    }
+
+}
+
+
+/* =====================================================
+   MÀN HÌNH LỚN
+   ===================================================== */
+
+@media (min-width: 700px) {
+
+    .container {
+
+        padding-top: 20px;
+    }
+
+    .service-list {
+
+        grid-template-columns:
+            repeat(3, 1fr);
+    }
+
+}
