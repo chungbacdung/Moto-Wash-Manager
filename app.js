@@ -1,1755 +1,283 @@
-// =====================================================
-// QUẢN LÝ RỬA XE - APP OFFLINE
-// =====================================================
+const STORAGE_KEY="quanLyRuaXeOrders";
+const MAX_HISTORY_DAYS=60;
+const EMPLOYEE_WASH_START_CAR=9;
+const EMPLOYEE_WASH_PAYMENT=10000;
+const EMPLOYEE_OIL_PAYMENT=10000;
 
-const STORAGE_KEY = "quanLyRuaXeOrders";
-const MAX_HISTORY_DAYS = 60;
+let orders=[];
+let selectedServices=[];
+let currentPayment="cash";
+let currentReportPeriod="today";
 
-// =====================================================
-// QUY TẮC THANH TOÁN NHÂN VIÊN
-// =====================================================
+const $=id=>document.getElementById(id);
 
-const EMPLOYEE_WASH_START_CAR = 9;
-const EMPLOYEE_WASH_PAYMENT = 10000;
-const EMPLOYEE_OIL_PAYMENT = 10000;
-
-// =====================================================
-// DỮ LIỆU
-// =====================================================
-
-let orders = [];
-let selectedServices = [];
-let currentPayment = "cash";
-
-// =====================================================
-// DỊCH VỤ
-// =====================================================
-
-const SERVICES = {
-    "Rửa xe máy": 30000,
-    "Rửa xe máy điện": 25000,
-
-    "Thay nhớt xe số Xám": 120000,
-    "Thay nhớt xe ga Xám": 130000,
-    "Thay nhớt xe số vàng": 140000,
-    "Thay nhớt xe ga vàng": 150000,
-
-    "Tuýp số": 50000
-};
-
-// =====================================================
-// ĐỌC DỮ LIỆU
-// =====================================================
-
-function loadOrders() {
-
-    try {
-
-        const saved =
-            localStorage.getItem(STORAGE_KEY);
-
-        if (!saved) {
-            orders = [];
-            return;
-        }
-
-        const data =
-            JSON.parse(saved);
-
-        if (Array.isArray(data)) {
-
-            orders = data;
-
-            migrateVehicleNumbers();
-
-        } else {
-
-            orders = [];
-
-        }
-
-    } catch (error) {
-
-        console.error(
-            "Không đọc được dữ liệu:",
-            error
-        );
-
-        orders = [];
-    }
+function loadOrders(){
+  try{
+    const s=localStorage.getItem(STORAGE_KEY);
+    orders=s?JSON.parse(s):[];
+    if(!Array.isArray(orders)) orders=[];
+    migrateVehicleNumbers();
+  }catch(e){console.error(e);orders=[]}
 }
-
-// =====================================================
-// BỔ SUNG STT CHO DỮ LIỆU CŨ
-// =====================================================
-
-function migrateVehicleNumbers() {
-
-    const groups = {};
-
-    orders.forEach(order => {
-
-        if (!order.date) {
-            return;
-        }
-
-        if (!groups[order.date]) {
-            groups[order.date] = [];
-        }
-
-        groups[order.date].push(order);
+function saveOrders(){
+  try{localStorage.setItem(STORAGE_KEY,JSON.stringify(orders));return true}
+  catch(e){alert("Không thể lưu dữ liệu trên máy.");return false}
+}
+function migrateVehicleNumbers(){
+  const groups={}; orders.forEach(o=>(groups[o.date]??=[]).push(o));
+  let changed=false;
+  Object.values(groups).forEach(list=>{
+    list.sort((a,b)=>new Date(a.createdAt||`${a.date}T00:00:00`)-new Date(b.createdAt||`${b.date}T00:00:00`));
+    let n=1;
+    list.forEach(o=>{
+      if(!Number.isInteger(Number(o.vehicleNumber))){o.vehicleNumber=n;changed=true}
+      n=Math.max(n,Number(o.vehicleNumber)+1);
     });
-
-    let changed = false;
-
-    Object.keys(groups).forEach(date => {
-
-        const dayOrders =
-            groups[date];
-
-        dayOrders.sort((a, b) => {
-
-            const timeA =
-                new Date(
-                    a.createdAt ||
-                    `${a.date}T00:00:00`
-                ).getTime();
-
-            const timeB =
-                new Date(
-                    b.createdAt ||
-                    `${b.date}T00:00:00`
-                ).getTime();
-
-            return timeA - timeB;
-        });
-
-        let nextNumber = 1;
-
-        dayOrders.forEach(order => {
-
-            const oldNumber =
-                Number(order.vehicleNumber);
-
-            if (
-                !Number.isInteger(oldNumber) ||
-                oldNumber <= 0
-            ) {
-
-                order.vehicleNumber =
-                    nextNumber;
-
-                changed = true;
-
-            }
-
-            nextNumber =
-                Math.max(
-                    nextNumber,
-                    Number(order.vehicleNumber) + 1
-                );
-        });
-    });
-
-    if (changed) {
-        saveOrders();
-    }
+  });
+  if(changed) saveOrders();
 }
-
-// =====================================================
-// LƯU DỮ LIỆU
-// =====================================================
-
-function saveOrders() {
-
-    try {
-
-        localStorage.setItem(
-            STORAGE_KEY,
-            JSON.stringify(orders)
-        );
-
-        return true;
-
-    } catch (error) {
-
-        console.error(
-            "Không lưu được dữ liệu:",
-            error
-        );
-
-        alert(
-            "Không thể lưu dữ liệu trên máy."
-        );
-
-        return false;
-    }
+function getDateKey(d=new Date()){
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
 }
-
-// =====================================================
-// NGÀY
-// =====================================================
-
-function getDateKey(date = new Date()) {
-
-    const year =
-        date.getFullYear();
-
-    const month =
-        String(
-            date.getMonth() + 1
-        ).padStart(2, "0");
-
-    const day =
-        String(
-            date.getDate()
-        ).padStart(2, "0");
-
-    return `${year}-${month}-${day}`;
+function formatDate(k){
+  const p=(k||"").split("-");
+  return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:k||"";
 }
-
-// =====================================================
-// ĐỊNH DẠNG NGÀY
-// =====================================================
-
-function formatDate(dateKey) {
-
-    if (!dateKey) {
-        return "";
-    }
-
-    const parts =
-        dateKey.split("-");
-
-    if (parts.length !== 3) {
-        return dateKey;
-    }
-
-    return `${parts[2]}/${parts[1]}/${parts[0]}`;
+function formatMoney(v){return Number(v||0).toLocaleString("vi-VN")+"₫"}
+function escapeHTML(v){return String(v??"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function showCurrentDate(){
+  $("currentDate").textContent=new Date().toLocaleDateString("vi-VN",{weekday:"long",day:"2-digit",month:"2-digit",year:"numeric"});
 }
-
-// =====================================================
-// ĐỊNH DẠNG TIỀN
-// =====================================================
-
-function formatMoney(value) {
-
-    return Number(value || 0)
-        .toLocaleString("vi-VN") + "₫";
+function selectService(btn){
+  const name=btn?.dataset.name,price=Number(btn?.dataset.price);
+  if(!name||!price)return;
+  const i=selectedServices.findIndex(s=>s.name===name);
+  if(i<0){selectedServices.push({name,price});btn.classList.add("selected")}
+  else{selectedServices.splice(i,1);btn.classList.remove("selected")}
+  renderSelectedServices();
 }
-
-// =====================================================
-// NGÀY HIỆN TẠI
-// =====================================================
-
-function showCurrentDate() {
-
-    const element =
-        document.getElementById(
-            "currentDate"
-        );
-
-    if (!element) {
-        return;
-    }
-
-    element.textContent =
-        new Date().toLocaleDateString(
-            "vi-VN",
-            {
-                weekday: "long",
-                day: "2-digit",
-                month: "2-digit",
-                year: "numeric"
-            }
-        );
+function renderSelectedServices(){
+  const box=$("selectedServices"),totalBox=$("orderTotal");
+  if(!selectedServices.length){box.textContent="Chưa chọn dịch vụ";totalBox.textContent="0₫";return}
+  let total=0;
+  box.innerHTML=selectedServices.map((s,i)=>{
+    total+=Number(s.price);
+    return `<div class="selected-service"><span>${escapeHTML(s.name)} <b>${formatMoney(s.price)}</b></span><button type="button" class="remove-service" data-index="${i}">×</button></div>`
+  }).join("");
+  totalBox.textContent=formatMoney(total);
+  box.querySelectorAll(".remove-service").forEach(b=>b.onclick=e=>{e.stopPropagation();removeSelectedService(Number(b.dataset.index))});
 }
-
-// =====================================================
-// CHỌN DỊCH VỤ
-// =====================================================
-
-function selectService(button) {
-
-    if (!button) {
-        return;
-    }
-
-    const name =
-        button.dataset.name;
-
-    const price =
-        Number(button.dataset.price);
-
-    if (!name || !price) {
-        return;
-    }
-
-    const existingIndex =
-        selectedServices.findIndex(
-            service =>
-                service.name === name
-        );
-
-    if (existingIndex === -1) {
-
-        selectedServices.push({
-            name: name,
-            price: price
-        });
-
-        button.classList.add("selected");
-
-    } else {
-
-        selectedServices.splice(
-            existingIndex,
-            1
-        );
-
-        button.classList.remove("selected");
-    }
-
-    renderSelectedServices();
+function removeSelectedService(i){
+  if(i<0||i>=selectedServices.length)return;
+  const r=selectedServices[i];selectedServices.splice(i,1);
+  document.querySelectorAll(".service-button").forEach(b=>{if(b.dataset.name===r.name)b.classList.remove("selected")});
+  renderSelectedServices();
 }
-
-// =====================================================
-// HIỂN THỊ DỊCH VỤ ĐÃ CHỌN
-// =====================================================
-
-function renderSelectedServices() {
-
-    const box =
-        document.getElementById(
-            "selectedServices"
-        );
-
-    const totalBox =
-        document.getElementById(
-            "orderTotal"
-        );
-
-    if (!box || !totalBox) {
-        return;
-    }
-
-    if (
-        selectedServices.length === 0
-    ) {
-
-        box.innerHTML =
-            "Chưa chọn dịch vụ";
-
-        totalBox.textContent =
-            "0₫";
-
-        return;
-    }
-
-    let total = 0;
-
-    box.innerHTML =
-        selectedServices
-            .map(
-                (service, index) => {
-
-                    total +=
-                        Number(service.price);
-
-                    return `
-                        <div class="selected-service">
-
-                            <span>
-                                ${escapeHTML(service.name)}
-                                -
-                                ${formatMoney(service.price)}
-                            </span>
-
-                            <button
-                                type="button"
-                                class="remove-service"
-                                data-index="${index}"
-                            >
-                                X
-                            </button>
-
-                        </div>
-                    `;
-                }
-            )
-            .join("");
-
-    totalBox.textContent =
-        formatMoney(total);
-
-    document
-        .querySelectorAll(
-            ".remove-service"
-        )
-        .forEach(button => {
-
-            button.onclick =
-                function(event) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    removeSelectedService(
-                        Number(
-                            this.dataset.index
-                        )
-                    );
-                };
-        });
+function setPayment(type){
+  if(!["cash","transfer"].includes(type))return;
+  currentPayment=type;
+  $("cashButton")?.classList.toggle("active",type==="cash");
+  $("transferButton")?.classList.toggle("active",type==="transfer");
 }
-
-// =====================================================
-// BỎ DỊCH VỤ
-// =====================================================
-
-function removeSelectedService(index) {
-
-    if (
-        index < 0 ||
-        index >= selectedServices.length
-    ) {
-        return;
-    }
-
-    const removed =
-        selectedServices[index];
-
-    selectedServices.splice(
-        index,
-        1
-    );
-
-    document
-        .querySelectorAll(
-            ".service-button"
-        )
-        .forEach(button => {
-
-            if (
-                button.dataset.name ===
-                removed.name
-            ) {
-
-                button.classList.remove(
-                    "selected"
-                );
-            }
-        });
-
-    renderSelectedServices();
+function createOrderId(){return Date.now().toString()+Math.random().toString(36).slice(2,8)}
+function getNextVehicleNumber(date){
+  const nums=orders.filter(o=>o.date===date).map(o=>Number(o.vehicleNumber||0)).filter(n=>Number.isFinite(n)&&n>0);
+  return nums.length?Math.max(...nums)+1:1;
 }
-
-// =====================================================
-// THANH TOÁN
-// =====================================================
-
-function setPayment(type) {
-
-    if (
-        type !== "cash" &&
-        type !== "transfer"
-    ) {
-        return;
-    }
-
-    currentPayment =
-        type;
-
-    const cash =
-        document.getElementById(
-            "cashButton"
-        );
-
-    const transfer =
-        document.getElementById(
-            "transferButton"
-        );
-
-    cash?.classList.remove("active");
-    transfer?.classList.remove("active");
-
-    if (type === "cash") {
-
-        cash?.classList.add("active");
-
-    } else {
-
-        transfer?.classList.add("active");
-    }
+function hasWashService(o){return Array.isArray(o.services)&&o.services.some(s=>s.name==="Rửa xe máy"||s.name==="Rửa xe máy điện")}
+function hasOilService(o){return Array.isArray(o.services)&&o.services.some(s=>s.name.startsWith("Thay nhớt")||s.name==="Nhớt xe số vàng 1L")}
+function getEmployeePayment(o){
+  let p=0,n=Number(o.vehicleNumber||0);
+  if(hasWashService(o)&&n>=EMPLOYEE_WASH_START_CAR)p+=EMPLOYEE_WASH_PAYMENT;
+  if(hasOilService(o))p+=EMPLOYEE_OIL_PAYMENT;
+  return p;
 }
-
-// =====================================================
-// TẠO ID
-// =====================================================
-
-function createOrderId() {
-
-    return (
-        Date.now().toString() +
-        Math.random()
-            .toString(36)
-            .substring(2, 8)
-    );
+function getGross(o){return Number(o.total||o.price||0)}
+function getNetRevenue(o){return Math.max(0,getGross(o)-getEmployeePayment(o))}
+function getTodayOrders(){return orders.filter(o=>o.date===getDateKey())}
+function getRecentOrders(){
+  const d=new Date();d.setHours(0,0,0,0);d.setDate(d.getDate()-(MAX_HISTORY_DAYS-1));
+  return orders.filter(o=>o.date>=getDateKey(d));
 }
-
-// =====================================================
-// LẤY STT XE TIẾP THEO
-// =====================================================
-
-function getNextVehicleNumber(dateKey) {
-
-    const dayOrders =
-        orders.filter(
-            order =>
-                order.date === dateKey
-        );
-
-    if (dayOrders.length === 0) {
-        return 1;
-    }
-
-    const numbers =
-        dayOrders
-            .map(order =>
-                Number(
-                    order.vehicleNumber || 0
-                )
-            )
-            .filter(
-                number =>
-                    Number.isFinite(number) &&
-                    number > 0
-            );
-
-    if (numbers.length === 0) {
-        return dayOrders.length + 1;
-    }
-
-    return Math.max(...numbers) + 1;
+function addOrder(){
+  const input=$("plate");
+  const plate=input.value.trim().toUpperCase();
+  if(!plate)return alert("Vui lòng nhập biển số xe.");
+  if(!selectedServices.length)return alert("Vui lòng chọn ít nhất một dịch vụ.");
+  const now=new Date(),date=getDateKey(now);
+  const services=selectedServices.map(s=>({name:s.name,price:Number(s.price)}));
+  const total=services.reduce((a,s)=>a+s.price,0);
+  orders.push({
+    id:createOrderId(),
+    vehicleNumber:getNextVehicleNumber(date),
+    plate,services,total,payment:currentPayment,date,
+    time:now.toLocaleTimeString("vi-VN",{hour:"2-digit",minute:"2-digit"}),
+    createdAt:now.toISOString()
+  });
+  if(!saveOrders())return;
+  input.value="";selectedServices=[];
+  document.querySelectorAll(".service-button").forEach(b=>b.classList.remove("selected"));
+  setPayment("cash");renderSelectedServices();showOrders();showHistory();renderReport();
+  updateNextVehicleNumber();
 }
-
-// =====================================================
-// KIỂM TRA RỬA XE
-// =====================================================
-
-function hasWashService(order) {
-
-    if (
-        !Array.isArray(order.services)
-    ) {
-        return false;
-    }
-
-    return order.services.some(
-        service =>
-            service.name === "Rửa xe máy" ||
-            service.name === "Rửa xe máy điện"
-    );
+function changePayment(id){
+  const o=orders.find(x=>String(x.id)===String(id));if(!o)return;
+  o.payment=o.payment==="cash"?"transfer":"cash";
+  saveOrders();showOrders();showHistory();renderReport();
 }
-
-// =====================================================
-// KIỂM TRA THAY NHỚT
-// =====================================================
-
-function hasOilService(order) {
-
-    if (
-        !Array.isArray(order.services)
-    ) {
-        return false;
-    }
-
-    return order.services.some(
-        service =>
-            service.name ===
-                "Thay nhớt xe số Xám" ||
-            service.name ===
-                "Thay nhớt xe ga Xám" ||
-            service.name ===
-                "Thay nhớt xe số vàng" ||
-            service.name ===
-                "Thay nhớt xe ga vàng"
-    );
+function deleteOrder(id){
+  const i=orders.findIndex(x=>String(x.id)===String(id));if(i<0)return;
+  const o=orders[i];
+  if(!confirm(`Xóa đơn xe #${o.vehicleNumber} - ${o.plate} - ${formatMoney(o.total)}?`))return;
+  orders.splice(i,1);saveOrders();showOrders();showHistory();renderReport();updateNextVehicleNumber();
 }
-
-// =====================================================
-// TÍNH TIỀN NHÂN VIÊN
-// =====================================================
-
-function getEmployeePayment(order) {
-
-    const vehicleNumber =
-        Number(
-            order.vehicleNumber || 0
-        );
-
-    let payment = 0;
-
-    // ---------------------------------------------
-    // RỬA XE
-    // Xe #9 trở đi = 10.000đ
-    // Xe máy điện cũng tính chung
-    // ---------------------------------------------
-
-    if (
-        hasWashService(order) &&
-        vehicleNumber >=
-            EMPLOYEE_WASH_START_CAR
-    ) {
-
-        payment +=
-            EMPLOYEE_WASH_PAYMENT;
-    }
-
-    // ---------------------------------------------
-    // THAY NHỚT
-    // Mỗi đơn thay nhớt = 10.000đ
-    // ---------------------------------------------
-
-    if (
-        hasOilService(order)
-    ) {
-
-        payment +=
-            EMPLOYEE_OIL_PAYMENT;
-    }
-
-    // ---------------------------------------------
-    // TUÝP SỐ
-    // Không tính
-    // ---------------------------------------------
-
-    return payment;
+function updateSummary(){
+  const today=getTodayOrders();let revenue=0,cash=0,transfer=0,employee=0;
+  today.forEach(o=>{
+    const e=getEmployeePayment(o),net=getNetRevenue(o);
+    employee+=e;revenue+=net;
+    if(o.payment==="cash")cash+=net;else if(o.payment==="transfer")transfer+=net;
+  });
+  $("totalCars").textContent=today.length;
+  $("totalRevenue").textContent=formatMoney(revenue);
+  $("totalCash").textContent=formatMoney(cash);
+  $("totalTransfer").textContent=formatMoney(transfer);
+  $("totalEmployeePayment").textContent=formatMoney(employee);
 }
-
-// =====================================================
-// TỔNG TIỀN ĐƠN
-// =====================================================
-
-function getOrderTotal(order) {
-
-    return Number(
-        order.total ||
-        order.price ||
-        0
-    );
+function updateNextVehicleNumber(){
+  $("nextVehicleNumber").textContent=getNextVehicleNumber(getDateKey());
 }
-
-// =====================================================
-// DOANH THU SAU KHI TRẢ NHÂN VIÊN
-// =====================================================
-
-function getNetRevenue(order) {
-
-    const total =
-        getOrderTotal(order);
-
-    const employee =
-        getEmployeePayment(order);
-
-    return Math.max(
-        0,
-        total - employee
-    );
+function servicesHTML(o){
+  return Array.isArray(o.services)?o.services.map(s=>`<div>• ${escapeHTML(s.name)} <span>${formatMoney(s.price)}</span></div>`).join(""):"";
 }
-
-// =====================================================
-// TẠO ĐƠN
-// =====================================================
-
-function addOrder() {
-
-    const plateInput =
-        document.getElementById(
-            "plate"
-        );
-
-    if (!plateInput) {
-        return;
-    }
-
-    const plate =
-        plateInput.value
-            .trim()
-            .toUpperCase();
-
-    if (!plate) {
-
-        alert(
-            "Vui lòng nhập biển số xe."
-        );
-
-        plateInput.focus();
-
-        return;
-    }
-
-    if (
-        selectedServices.length === 0
-    ) {
-
-        alert(
-            "Vui lòng chọn ít nhất một dịch vụ."
-        );
-
-        return;
-    }
-
-    const now =
-        new Date();
-
-    const dateKey =
-        getDateKey(now);
-
-    const vehicleNumber =
-        getNextVehicleNumber(
-            dateKey
-        );
-
-    const services =
-        selectedServices.map(
-            service => ({
-                name:
-                    service.name,
-
-                price:
-                    Number(
-                        service.price
-                    )
-            })
-        );
-
-    const total =
-        services.reduce(
-            (sum, service) =>
-                sum +
-                Number(service.price),
-            0
-        );
-
-    const order = {
-
-        id:
-            createOrderId(),
-
-        vehicleNumber:
-            vehicleNumber,
-
-        plate:
-            plate,
-
-        services:
-            services,
-
-        total:
-            total,
-
-        payment:
-            currentPayment,
-
-        date:
-            dateKey,
-
-        time:
-            now.toLocaleTimeString(
-                "vi-VN",
-                {
-                    hour: "2-digit",
-                    minute: "2-digit"
-                }
-            ),
-
-        createdAt:
-            now.toISOString()
-    };
-
-    orders.push(order);
-
-    if (!saveOrders()) {
-        return;
-    }
-
-    // Xóa form
-
-    plateInput.value = "";
-
-    selectedServices = [];
-
-    document
-        .querySelectorAll(
-            ".service-button"
-        )
-        .forEach(button => {
-
-            button.classList.remove(
-                "selected"
-            );
-        });
-
-    setPayment("cash");
-
-    renderSelectedServices();
-
-    showOrders();
-
-    showHistory();
+function orderHTML(o,history=false){
+  const total=getGross(o),emp=getEmployeePayment(o),net=getNetRevenue(o);
+  const pay=o.payment==="cash"?"💵 Tiền mặt":"🏦 Chuyển khoản";
+  const change=o.payment==="cash"?"🔄 Đổi sang CK":"🔄 Đổi sang tiền mặt";
+  return `<article class="${history?"history-order":"order"}">
+    <div class="${history?"history-order-top":"order-top"}">
+      <div><strong>Xe #${Number(o.vehicleNumber||0)}</strong><span class="plate">${escapeHTML(o.plate)}</span></div>
+      <b>${formatMoney(total)}</b>
+    </div>
+    <div class="order-service">${servicesHTML(o)}</div>
+    <div class="order-meta"><span>${pay}</span><span>🕐 ${escapeHTML(o.time)}</span></div>
+    <div class="order-finance"><span>NV <b>${formatMoney(emp)}</b></span><span>Thực nhận <b>${formatMoney(net)}</b></span></div>
+    <div class="order-buttons">
+      <button type="button" class="change-payment" data-id="${o.id}">${history?"🔄 Đổi thanh toán":change}</button>
+      <button type="button" class="delete-order" data-id="${o.id}">🗑 Xóa</button>
+    </div>
+  </article>`;
 }
-
-// =====================================================
-// ĐỔI THANH TOÁN
-// =====================================================
-
-function changePayment(id) {
-
-    const order =
-        orders.find(
-            item =>
-                String(item.id) ===
-                String(id)
-        );
-
-    if (!order) {
-        return;
-    }
-
-    order.payment =
-        order.payment === "cash"
-            ? "transfer"
-            : "cash";
-
-    saveOrders();
-
-    showOrders();
-
-    showHistory();
+function bindOrderButtons(root){
+  document.querySelectorAll(`${root} .change-payment`).forEach(b=>b.onclick=()=>changePayment(b.dataset.id));
+  document.querySelectorAll(`${root} .delete-order`).forEach(b=>b.onclick=()=>deleteOrder(b.dataset.id));
 }
-
-// =====================================================
-// XÓA ĐƠN
-// =====================================================
-
-function deleteOrder(id) {
-
-    const index =
-        orders.findIndex(
-            item =>
-                String(item.id) ===
-                String(id)
-        );
-
-    if (index === -1) {
-        return;
-    }
-
-    const order =
-        orders[index];
-
-    const ok =
-        confirm(
-            `Xóa đơn ${order.plate} - ${formatMoney(getOrderTotal(order))}?`
-        );
-
-    if (!ok) {
-        return;
-    }
-
-    orders.splice(
-        index,
-        1
-    );
-
-    saveOrders();
-
-    showOrders();
-
-    showHistory();
+function showOrders(){
+  updateSummary();updateNextVehicleNumber();
+  const list=getTodayOrders().sort((a,b)=>String(b.id).localeCompare(String(a.id)));
+  $("orders").innerHTML=list.length?list.map(o=>orderHTML(o)).join(""):`<div class="empty">Chưa có đơn hôm nay</div>`;
+  bindOrderButtons("#orders");
 }
-
-// =====================================================
-// ĐƠN HÔM NAY
-// =====================================================
-
-function getTodayOrders() {
-
-    const today =
-        getDateKey();
-
-    return orders.filter(
-        order =>
-            order.date === today
-    );
+function getHistoryFiltered(){
+  const q=($("historySearch")?.value||"").trim().toUpperCase();
+  return getRecentOrders().filter(o=>!q||String(o.plate||"").toUpperCase().includes(q));
 }
-
-// =====================================================
-// LỊCH SỬ 60 NGÀY
-// =====================================================
-
-function getRecentOrders() {
-
-    const today =
-        new Date();
-
-    const limit =
-        new Date(today);
-
-    limit.setHours(
-        0,
-        0,
-        0,
-        0
-    );
-
-    limit.setDate(
-        limit.getDate() -
-        (MAX_HISTORY_DAYS - 1)
-    );
-
-    const limitKey =
-        getDateKey(limit);
-
-    return orders.filter(
-        order =>
-            order.date >= limitKey
-    );
+function showHistory(){
+  const list=getHistoryFiltered();
+  let gross=0,employee=0,net=0;
+  list.forEach(o=>{gross+=getGross(o);employee+=getEmployeePayment(o);net+=getNetRevenue(o)});
+  $("historyCars").textContent=list.length;
+  $("historyGross").textContent=formatMoney(gross);
+  $("historyEmployee").textContent=formatMoney(employee);
+  $("historyNet").textContent=formatMoney(net);
+  if(!list.length){$("history").innerHTML=`<div class="empty">Không tìm thấy dữ liệu phù hợp</div>`;return}
+  const groups={};
+  list.sort((a,b)=>b.date.localeCompare(a.date)||String(b.id).localeCompare(String(a.id))).forEach(o=>(groups[o.date]??=[]).push(o));
+  $("history").innerHTML=Object.keys(groups).sort().reverse().map(date=>{
+    const ds=groups[date],g=ds.reduce((a,o)=>a+getGross(o),0),e=ds.reduce((a,o)=>a+getEmployeePayment(o),0);
+    return `<div class="history-day">
+      <button class="history-day-header" type="button">
+        <div><strong>📅 ${formatDate(date)}</strong><span>${ds.length} xe</span><small>Thực nhận: ${formatMoney(Math.max(0,g-e))} • NV: ${formatMoney(e)}</small></div>
+        <span class="history-arrow">⌄</span>
+      </button>
+      <div class="history-day-content">${ds.map(o=>orderHTML(o,true)).join("")}</div>
+    </div>`;
+  }).join("");
+  document.querySelectorAll(".history-day-header").forEach(h=>h.onclick=()=>h.parentElement.classList.toggle("open"));
+  bindOrderButtons("#history");
 }
-
-// =====================================================
-// THỐNG KÊ CHÍNH
-// =====================================================
-
-function updateSummary() {
-
-    const todayOrders =
-        getTodayOrders();
-
-    let grossRevenue = 0;
-    let employeePayment = 0;
-    let netRevenue = 0;
-
-    let cash = 0;
-    let transfer = 0;
-
-    todayOrders.forEach(order => {
-
-        const total =
-            getOrderTotal(order);
-
-        const employee =
-            getEmployeePayment(order);
-
-        const net =
-            getNetRevenue(order);
-
-        grossRevenue +=
-            total;
-
-        employeePayment +=
-            employee;
-
-        netRevenue +=
-            net;
-
-        // -----------------------------------------
-        // TIỀN MẶT / CHUYỂN KHOẢN
-        // Đây là tiền khách thực trả
-        // -----------------------------------------
-
-        if (
-            order.payment === "cash"
-        ) {
-
-            cash += total;
-        }
-
-        if (
-            order.payment === "transfer"
-        ) {
-
-            transfer += total;
-        }
-    });
-
-    // ---------------------------------------------
-    // SỐ XE
-    // ---------------------------------------------
-
-    const totalCars =
-        document.getElementById(
-            "totalCars"
-        );
-
-    if (totalCars) {
-
-        totalCars.textContent =
-            todayOrders.length;
-    }
-
-    // ---------------------------------------------
-    // DOANH THU SAU KHI TRỪ NHÂN VIÊN
-    // ---------------------------------------------
-
-    const totalRevenue =
-        document.getElementById(
-            "totalRevenue"
-        );
-
-    if (totalRevenue) {
-
-        totalRevenue.textContent =
-            formatMoney(
-                netRevenue
-            );
-    }
-
-    // ---------------------------------------------
-    // TIỀN MẶT
-    // ---------------------------------------------
-
-    const totalCash =
-        document.getElementById(
-            "totalCash"
-        );
-
-    if (totalCash) {
-
-        totalCash.textContent =
-            formatMoney(
-                cash
-            );
-    }
-
-    // ---------------------------------------------
-    // CHUYỂN KHOẢN
-    // ---------------------------------------------
-
-    const totalTransfer =
-        document.getElementById(
-            "totalTransfer"
-        );
-
-    if (totalTransfer) {
-
-        totalTransfer.textContent =
-            formatMoney(
-                transfer
-            );
-    }
-
-    // ---------------------------------------------
-    // THANH TOÁN NHÂN VIÊN
-    // ---------------------------------------------
-
-    const totalEmployeePayment =
-        document.getElementById(
-            "totalEmployeePayment"
-        );
-
-    if (totalEmployeePayment) {
-
-        totalEmployeePayment.textContent =
-            formatMoney(
-                employeePayment
-            );
-    }
+function switchTab(id){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.toggle("active",t.dataset.tab===id));
+  document.querySelectorAll(".tab-panel").forEach(p=>p.classList.toggle("active",p.id===id));
+  if(id==="historyTab")showHistory();
+  if(id==="reportTab")renderReport();
+  window.scrollTo({top:0,behavior:"smooth"});
 }
-
-// =====================================================
-// ESCAPE HTML
-// =====================================================
-
-function escapeHTML(value) {
-
-    return String(value ?? "")
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#039;");
+function getReportOrders(period){
+  const today=new Date();today.setHours(0,0,0,0);
+  let start=new Date(today);
+  if(period==="7")start.setDate(start.getDate()-6);
+  else if(period==="30")start.setDate(start.getDate()-29);
+  else if(period==="month")start=new Date(today.getFullYear(),today.getMonth(),1);
+  const sk=getDateKey(start),ek=getDateKey(today);
+  return orders.filter(o=>o.date>=sk&&o.date<=ek);
 }
-
-// =====================================================
-// DỊCH VỤ TRONG ĐƠN
-// =====================================================
-
-function servicesHTML(order) {
-
-    if (
-        Array.isArray(
-            order.services
-        )
-    ) {
-
-        return order.services
-            .map(
-                service => `
-                    <div>
-                        • ${escapeHTML(
-                            service.name
-                        )}
-                        -
-                        ${formatMoney(
-                            service.price
-                        )}
-                    </div>
-                `
-            )
-            .join("");
-    }
-
-    // Hỗ trợ dữ liệu cũ
-
-    if (order.service) {
-
-        return `
-            <div>
-                • ${escapeHTML(
-                    order.service
-                )}
-                -
-                ${formatMoney(
-                    order.price
-                )}
-            </div>
-        `;
-    }
-
-    return "";
+function reportPeriodLabel(period){
+  const t=new Date();
+  if(period==="today")return `Hôm nay • ${formatDate(getDateKey(t))}`;
+  if(period==="7")return "7 ngày gần nhất";
+  if(period==="30")return "30 ngày gần nhất";
+  return `Tháng ${t.getMonth()+1}/${t.getFullYear()}`;
 }
-
-// =====================================================
-// HTML ĐƠN
-// =====================================================
-
-function createOrderHTML(order) {
-
-    const paymentText =
-        order.payment === "cash"
-            ? "💵 Tiền mặt"
-            : "🏦 Chuyển khoản";
-
-    const changeText =
-        order.payment === "cash"
-            ? "🔄 Đổi sang CK"
-            : "🔄 Đổi sang tiền mặt";
-
-    const total =
-        getOrderTotal(order);
-
-    const employee =
-        getEmployeePayment(order);
-
-    const net =
-        getNetRevenue(order);
-
-    return `
-
-        <div class="order">
-
-            <div class="order-top">
-
-                <div class="order-plate">
-
-                    <span>
-                        🚗 Xe #${Number(
-                            order.vehicleNumber || 0
-                        )}
-                    </span>
-
-                    <br>
-
-                    <strong>
-                        ${escapeHTML(
-                            order.plate
-                        )}
-                    </strong>
-
-                </div>
-
-                <div class="order-price">
-                    ${formatMoney(total)}
-                </div>
-
-            </div>
-
-            <div class="order-service">
-                ${servicesHTML(order)}
-            </div>
-
-            <div class="order-payment">
-                ${paymentText}
-            </div>
-
-            <div class="order-employee">
-
-                👨‍🔧 Thanh toán NV:
-                <strong>
-                    ${formatMoney(employee)}
-                </strong>
-
-            </div>
-
-            <div class="order-revenue">
-
-                💰 Doanh thu thực nhận:
-                <strong>
-                    ${formatMoney(net)}
-                </strong>
-
-            </div>
-
-            <div class="order-time">
-
-                🕐 ${escapeHTML(
-                    order.time
-                )}
-
-            </div>
-
-            <div class="order-buttons">
-
-                <button
-                    type="button"
-                    class="change-payment"
-                    data-id="${order.id}"
-                >
-                    ${changeText}
-                </button>
-
-                <button
-                    type="button"
-                    class="delete-order"
-                    data-id="${order.id}"
-                >
-                    🗑 Xóa
-                </button>
-
-            </div>
-
-        </div>
-    `;
+function renderReport(){
+  document.querySelectorAll(".report-preset").forEach(b=>b.classList.toggle("active",b.dataset.period===currentReportPeriod));
+  $("reportPeriodText").textContent=reportPeriodLabel(currentReportPeriod);
+  const list=getReportOrders(currentReportPeriod);
+  let gross=0,emp=0,net=0,cash=0,transfer=0;
+  list.forEach(o=>{const g=getGross(o),e=getEmployeePayment(o),n=getNetRevenue(o);gross+=g;emp+=e;net+=n;if(o.payment==="cash")cash+=n;else transfer+=n});
+  $("reportGross").textContent=formatMoney(gross);
+  $("reportEmployee").textContent=formatMoney(emp);
+  $("reportNet").textContent=formatMoney(net);
+  $("reportCars").textContent=list.length;
+  $("reportCash").textContent=formatMoney(cash);
+  $("reportTransfer").textContent=formatMoney(transfer);
+  renderDailyReport(list);
+  renderServiceReport(list);
 }
-
-// =====================================================
-// HIỂN THỊ ĐƠN HÔM NAY
-// =====================================================
-
-function showOrders() {
-
-    const box =
-        document.getElementById(
-            "orders"
-        );
-
-    if (!box) {
-        return;
-    }
-
-    updateSummary();
-
-    const todayOrders =
-        getTodayOrders();
-
-    if (
-        todayOrders.length === 0
-    ) {
-
-        box.innerHTML = `
-            <div class="empty">
-                Chưa có đơn hôm nay
-            </div>
-        `;
-
-        return;
-    }
-
-    const sorted =
-        [...todayOrders]
-            .sort(
-                (a, b) =>
-                    Number(
-                        b.vehicleNumber || 0
-                    ) -
-                    Number(
-                        a.vehicleNumber || 0
-                    )
-            );
-
-    box.innerHTML =
-        sorted
-            .map(
-                order =>
-                    createOrderHTML(
-                        order
-                    )
-            )
-            .join("");
-
-    attachOrderButtons();
+function renderDailyReport(list){
+  const groups={};
+  list.forEach(o=>(groups[o.date]??=[]).push(o));
+  const rows=Object.keys(groups).sort().reverse();
+  if(!rows.length){$("dailyReport").innerHTML=`<div class="empty">Chưa có dữ liệu</div>`;return}
+  const max=Math.max(1,...rows.map(d=>groups[d].reduce((a,o)=>a+getNetRevenue(o),0)));
+  $("dailyReport").innerHTML=rows.map(d=>{
+    const ds=groups[d],n=ds.reduce((a,o)=>a+getNetRevenue(o),0),g=ds.reduce((a,o)=>a+getGross(o),0),e=ds.reduce((a,o)=>a+getEmployeePayment(o),0);
+    return `<div class="daily-row"><div class="daily-label"><b>${formatDate(d)}</b><span>${ds.length} xe</span></div><div class="bar-track"><div class="bar" style="width:${Math.max(4,(n/max)*100)}%"></div></div><div class="daily-value"><b>${formatMoney(n)}</b><small>Gộp ${formatMoney(g)} • NV ${formatMoney(e)}</small></div></div>`;
+  }).join("");
 }
-
-// =====================================================
-// GẮN NÚT ĐƠN
-// =====================================================
-
-function attachOrderButtons() {
-
-    document
-        .querySelectorAll(
-            "#orders .change-payment"
-        )
-        .forEach(button => {
-
-            button.onclick =
-                function() {
-
-                    changePayment(
-                        this.dataset.id
-                    );
-                };
-        });
-
-    document
-        .querySelectorAll(
-            "#orders .delete-order"
-        )
-        .forEach(button => {
-
-            button.onclick =
-                function() {
-
-                    deleteOrder(
-                        this.dataset.id
-                    );
-                };
-        });
+function renderServiceReport(list){
+  const map={};
+  list.forEach(o=>o.services?.forEach(s=>{
+    if(!map[s.name])map[s.name]={count:0,revenue:0};
+    map[s.name].count++;map[s.name].revenue+=Number(s.price||0);
+  }));
+  const rows=Object.entries(map).sort((a,b)=>b[1].revenue-a[1].revenue);
+  if(!rows.length){$("serviceReport").innerHTML=`<div class="empty">Chưa có dữ liệu</div>`;return}
+  const max=Math.max(1,...rows.map(x=>x[1].revenue));
+  $("serviceReport").innerHTML=rows.map(([name,v])=>`<div class="service-row"><div class="service-row-top"><b>${escapeHTML(name)}</b><span>${v.count} lượt</span></div><div class="service-progress"><i style="width:${Math.max(5,v.revenue/max*100)}%"></i></div><strong>${formatMoney(v.revenue)}</strong></div>`).join("");
 }
-
-// =====================================================
-// HTML LỊCH SỬ ĐƠN
-// =====================================================
-
-function createHistoryOrderHTML(order) {
-
-    const paymentText =
-        order.payment === "cash"
-            ? "💵 Tiền mặt"
-            : "🏦 Chuyển khoản";
-
-    const total =
-        getOrderTotal(order);
-
-    const employee =
-        getEmployeePayment(order);
-
-    const net =
-        getNetRevenue(order);
-
-    return `
-
-        <div class="history-order">
-
-            <div class="history-order-top">
-
-                <strong>
-
-                    Xe #${Number(
-                        order.vehicleNumber || 0
-                    )}
-
-                    -
-                    ${escapeHTML(
-                        order.time
-                    )}
-
-                    -
-                    ${escapeHTML(
-                        order.plate
-                    )}
-
-                </strong>
-
-                <b>
-                    ${formatMoney(total)}
-                </b>
-
-            </div>
-
-            <div class="order-service">
-                ${servicesHTML(order)}
-            </div>
-
-            <div class="order-payment">
-                ${paymentText}
-            </div>
-
-            <div class="order-employee">
-
-                👨‍🔧 Thanh toán NV:
-                <strong>
-                    ${formatMoney(employee)}
-                </strong>
-
-            </div>
-
-            <div class="order-revenue">
-
-                💰 Doanh thu thực nhận:
-                <strong>
-                    ${formatMoney(net)}
-                </strong>
-
-            </div>
-
-            <div class="order-buttons">
-
-                <button
-                    type="button"
-                    class="change-payment"
-                    data-id="${order.id}"
-                >
-                    🔄 Đổi thanh toán
-                </button>
-
-                <button
-                    type="button"
-                    class="delete-order"
-                    data-id="${order.id}"
-                >
-                    🗑 Xóa
-                </button>
-
-            </div>
-
-        </div>
-    `;
+function setupEvents(){
+  document.querySelectorAll(".service-button").forEach(b=>b.onclick=e=>{e.preventDefault();selectService(b)});
+  $("cashButton").onclick=()=>setPayment("cash");
+  $("transferButton").onclick=()=>setPayment("transfer");
+  $("addOrderButton").onclick=addOrder;
+  $("plate").addEventListener("keydown",e=>{if(e.key==="Enter")addOrder()});
+  document.querySelectorAll(".tab").forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+  $("historySearch").addEventListener("input",showHistory);
+  $("historyClear").onclick=()=>{$("historySearch").value="";showHistory()};
+  document.querySelectorAll(".report-preset").forEach(b=>b.onclick=()=>{currentReportPeriod=b.dataset.period;renderReport()});
 }
-
-// =====================================================
-// HIỂN THỊ LỊCH SỬ
-// =====================================================
-
-function showHistory() {
-
-    const box =
-        document.getElementById(
-            "history"
-        );
-
-    if (!box) {
-        return;
-    }
-
-    let recentOrders =
-        getRecentOrders();
-
-    if (
-        recentOrders.length === 0
-    ) {
-
-        box.innerHTML = `
-            <div class="empty">
-                Chưa có lịch sử
-            </div>
-        `;
-
-        return;
-    }
-
-    recentOrders.sort((a, b) => {
-
-        if (
-            a.date !== b.date
-        ) {
-
-            return b.date.localeCompare(
-                a.date
-            );
-        }
-
-        return Number(
-            b.vehicleNumber || 0
-        ) -
-        Number(
-            a.vehicleNumber || 0
-        );
-    });
-
-    const groups = {};
-
-    recentOrders.forEach(order => {
-
-        if (!groups[order.date]) {
-
-            groups[order.date] = [];
-        }
-
-        groups[order.date].push(
-            order
-        );
-    });
-
-    box.innerHTML = "";
-
-    Object.keys(groups)
-        .sort()
-        .reverse()
-        .forEach(date => {
-
-            const dayOrders =
-                groups[date];
-
-            let grossRevenue = 0;
-            let employeePayment = 0;
-
-            dayOrders.forEach(
-                order => {
-
-                    grossRevenue +=
-                        getOrderTotal(
-                            order
-                        );
-
-                    employeePayment +=
-                        getEmployeePayment(
-                            order
-                        );
-                }
-            );
-
-            const netRevenue =
-                Math.max(
-                    0,
-                    grossRevenue -
-                    employeePayment
-                );
-
-            const day =
-                document.createElement(
-                    "div"
-                );
-
-            day.className =
-                "history-day";
-
-            day.innerHTML = `
-
-                <div
-                    class="history-day-header"
-                >
-
-                    <div>
-
-                        <strong>
-                            📅 ${formatDate(date)}
-                        </strong>
-
-                        <br>
-
-                        <span>
-
-                            ${dayOrders.length}
-                            xe
-
-                            • Doanh thu:
-                            ${formatMoney(
-                                netRevenue
-                            )}
-
-                            • NV:
-                            ${formatMoney(
-                                employeePayment
-                            )}
-
-                        </span>
-
-                    </div>
-
-                    <div class="history-arrow">
-                        ▼
-                    </div>
-
-                </div>
-
-                <div class="history-day-content">
-
-                    ${dayOrders
-                        .map(
-                            order =>
-                                createHistoryOrderHTML(
-                                    order
-                                )
-                        )
-                        .join("")}
-
-                </div>
-            `;
-
-            box.appendChild(day);
-        });
-
-    document
-        .querySelectorAll(
-            ".history-day-header"
-        )
-        .forEach(header => {
-
-            header.onclick =
-                function() {
-
-                    this.parentElement
-                        .classList.toggle(
-                            "open"
-                        );
-                };
-        });
-
-    attachHistoryButtons();
+function initApp(){
+  loadOrders();showCurrentDate();setupEvents();setPayment("cash");renderSelectedServices();showOrders();showHistory();renderReport();
 }
-
-// =====================================================
-// NÚT LỊCH SỬ
-// =====================================================
-
-function attachHistoryButtons() {
-
-    document
-        .querySelectorAll(
-            "#history .change-payment"
-        )
-        .forEach(button => {
-
-            button.onclick =
-                function(event) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    changePayment(
-                        this.dataset.id
-                    );
-                };
-        });
-
-    document
-        .querySelectorAll(
-            "#history .delete-order"
-        )
-        .forEach(button => {
-
-            button.onclick =
-                function(event) {
-
-                    event.preventDefault();
-                    event.stopPropagation();
-
-                    deleteOrder(
-                        this.dataset.id
-                    );
-                };
-        });
-}
-
-// =====================================================
-// GÁN SỰ KIỆN
-// =====================================================
-
-function setupEvents() {
-
-    // Dịch vụ
-
-    document
-        .querySelectorAll(
-            ".service-button"
-        )
-        .forEach(button => {
-
-            button.onclick =
-                function(event) {
-
-                    event.preventDefault();
-
-                    selectService(this);
-                };
-        });
-
-    // Tiền mặt
-
-    document.getElementById(
-        "cashButton"
-    )?.addEventListener(
-        "click",
-        () =>
-            setPayment("cash")
-    );
-
-    // Chuyển khoản
-
-    document.getElementById(
-        "transferButton"
-    )?.addEventListener(
-        "click",
-        () =>
-            setPayment("transfer")
-    );
-
-    // Thêm đơn
-
-    document.getElementById(
-        "addOrderButton"
-    )?.addEventListener(
-        "click",
-        addOrder
-    );
-
-    // Xem lịch sử
-
-    document.getElementById(
-        "historyButton"
-    )?.addEventListener(
-        "click",
-        showHistory
-    );
-}
-
-// =====================================================
-// KHỞI ĐỘNG
-// =====================================================
-
-function initApp() {
-
-    loadOrders();
-
-    showCurrentDate();
-
-    setupEvents();
-
-    setPayment("cash");
-
-    renderSelectedServices();
-
-    showOrders();
-}
-
-// =====================================================
-// CHẠY APP
-// =====================================================
-
-if (
-    document.readyState ===
-    "loading"
-) {
-
-    document.addEventListener(
-        "DOMContentLoaded",
-        initApp
-    );
-
-} else {
-
-    initApp();
-}
+document.readyState==="loading"?document.addEventListener("DOMContentLoaded",initApp):initApp();
