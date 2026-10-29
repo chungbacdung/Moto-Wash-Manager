@@ -23,9 +23,21 @@
 </header>
 
 <nav class="tabs" aria-label="Điều hướng">
-  <button class="tab active" data-tab="ordersTab">🧾 <span>Tạo đơn</span></button>
-  <button class="tab" data-tab="historyTab">📅 <span>Lịch sử</span></button>
-  <button class="tab" data-tab="reportTab">📊 <span>Báo cáo</span></button>
+  <button class="tab active" data-tab="ordersTab">
+    🧾 <span>Tạo đơn</span>
+  </button>
+
+  <button class="tab" data-tab="historyTab">
+    📅 <span>Lịch sử</span>
+  </button>
+
+  <button class="tab" data-tab="reportTab">
+    📊 <span>Báo cáo</span>
+  </button>
+
+  <button class="tab" data-tab="attendanceTab">
+    👨‍🔧 <span>Chấm công</span>
+  </button>
 </nav>
 
 <main class="container">
@@ -54,15 +66,89 @@
 
       <label>CHỌN DỊCH VỤ</label>
       <div class="service-list">
-        <button type="button" class="service-button" data-name="Rửa xe máy" data-price="30000"><span class="service-icon">🏍️</span><span class="service-name">Rửa xe máy</span><b>30.000₫</b></button>
-        <button type="button" class="service-button" data-name="Rửa xe máy điện" data-price="25000"><span class="service-icon">⚡</span><span class="service-name">Rửa xe máy điện</span><b>25.000₫</b></button>
-        <button type="button" class="service-button" data-name="Thay nhớt xe số Xám" data-price="120000"><span class="service-icon">🛢️</span><span class="service-name">Nhớt xe số Xám</span><b>120.000₫</b></button>
-        <button type="button" class="service-button" data-name="Thay nhớt xe ga Xám" data-price="130000"><span class="service-icon">🛢️</span><span class="service-name">Nhớt xe ga Xám</span><b>130.000₫</b></button>
-        <button type="button" class="service-button" data-name="Thay nhớt xe số vàng" data-price="140000"><span class="service-icon">🛢️</span><span class="service-name">Nhớt xe số vàng</span><b>140.000₫</b></button>
-        <button type="button" class="service-button" data-name="Nhớt xe số vàng 1L" data-price="160000"><span class="service-icon">🛢️</span><span class="service-name">Nhớt xe số vàng 1L</span><b>160.000₫</b></button>
-        <button type="button" class="service-button" data-name="Thay nhớt xe ga vàng" data-price="150000"><span class="service-icon">🛢️</span><span class="service-name">Nhớt xe ga vàng</span><b>150.000₫</b></button>
-        <button type="button" class="service-button" data-name="Tuýp số" data-price="50000"><span class="service-icon">⚙️</span><span class="service-name">Tuýp số</span><b>50.000₫</b><small>Không tính NV</small></button>
-      </div>
+
+  <!-- RỬA XE MÁY -->
+  <button type="button"
+          class="service-button"
+          data-name="Rửa xe máy"
+          data-price="30000">
+    <span class="service-icon">🏍️</span>
+    <span class="service-name">Rửa xe máy</span>
+    <b>30.000₫</b>
+  </button>
+
+  <!-- RỬA XE MÁY ĐIỆN -->
+  <button type="button"
+          class="service-button"
+          data-name="Rửa xe máy điện"
+          data-price="25000">
+    <span class="service-icon">⚡</span>
+    <span class="service-name">Rửa xe máy điện</span>
+    <b>25.000₫</b>
+  </button>
+
+  <!-- NHỚT XE SỐ XÁM -->
+  <button type="button"
+          class="service-button"
+          data-name="Thay nhớt xe số Xám"
+          data-price="130000">
+    <span class="service-icon">🛢️</span>
+    <span class="service-name">Nhớt xe số Xám</span>
+    <b>130.000₫</b>
+  </button>
+
+  <!-- NHỚT XE GA XÁM -->
+  <button type="button"
+          class="service-button"
+          data-name="Thay nhớt xe ga Xám"
+          data-price="140000">
+    <span class="service-icon">🛢️</span>
+    <span class="service-name">Nhớt xe ga Xám</span>
+    <b>140.000₫</b>
+  </button>
+
+  <!-- NHỚT XE SỐ VÀNG -->
+  <button type="button"
+          class="service-button"
+          data-name="Thay nhớt xe số vàng"
+          data-price="150000">
+    <span class="service-icon">🛢️</span>
+    <span class="service-name">Nhớt xe số vàng</span>
+    <b>150.000₫</b>
+  </button>
+
+  <!-- NHỚT XE SỐ VÀNG 1L -->
+  <button type="button"
+          class="service-button"
+          data-name="Nhớt xe số vàng 1L"
+          data-price="170000">
+    <span class="service-icon">🛢️</span>
+    <span class="service-name">Nhớt xe số vàng 1L</span>
+    <b>170.000₫</b>
+  </button>
+
+  <!-- NHỚT XE GA VÀNG -->
+  <button type="button"
+          class="service-button"
+          data-name="Thay nhớt xe ga vàng"
+          data-price="160000">
+    <span class="service-icon">🛢️</span>
+    <span class="service-name">Nhớt xe ga vàng</span>
+    <b>160.000₫</b>
+  </button>
+
+  <!-- TUÝP SỐ: KHÔNG TÍNH TIỀN NHÂN VIÊN -->
+  <button type="button"
+          class="service-button"
+          data-name="Tuýp số"
+          data-price="50000">
+    <span class="service-icon">⚙️</span>
+    <span class="service-name">Tuýp số</span>
+    <b>50.000₫</b>
+    <small>Không tính NV</small>
+  </button>
+
+</div>
 
       <div class="selected-box" id="selectedServices">Chưa chọn dịch vụ</div>
       <div class="order-total"><span>TỔNG TIỀN</span><strong id="orderTotal">0₫</strong></div>
@@ -200,8 +286,6 @@
     </div>
 
   </section>
-
-
   <!-- THỐNG KÊ -->
 
   <div class="report-cards">
@@ -514,11 +598,186 @@
   </div>
 
 </section>
+<!-- SHEET CHẤM CÔNG -->
+<section id="attendanceTab" class="tab-panel">
+
+  <div class="page-heading">
+    <div>
+      <div class="eyebrow">QUẢN LÝ NHÂN SỰ</div>
+      <h2>👨‍🔧 Chấm công nhân viên</h2>
+      <p>Quản lý ngày công và tự động tính lương.</p>
+    </div>
+  </div>
+
+  <!-- CHỌN THÁNG -->
+  <section class="card attendance-card">
+
+    <label for="attendanceMonth">THÁNG CHẤM CÔNG</label>
+
+    <input
+      type="month"
+      id="attendanceMonth"
+    >
+
+    <label for="monthlySalary">LƯƠNG CƠ BẢN THÁNG (₫)</label>
+
+    <input
+      type="text"
+      id="monthlySalary"
+      inputmode="numeric"
+      placeholder="Ví dụ: 6.000.000"
+    >
+
+    <button
+      type="button"
+      id="saveMonthlySalary"
+      class="add-button">
+      💾 LƯU LƯƠNG THÁNG
+    </button>
+
+  </section>
+
+  <!-- THỐNG KÊ CÔNG -->
+  <div class="attendance-summary">
+
+    <div class="attendance-stat">
+      <span>💰 Lương cơ bản</span>
+      <strong id="attendanceBaseSalary">0₫</strong>
+    </div>
+
+    <div class="attendance-stat">
+      <span>📆 Định mức ngày</span>
+      <strong id="attendanceDailySalary">0₫</strong>
+    </div>
+
+    <div class="attendance-stat">
+      <span>✅ Ngày công</span>
+      <strong id="attendanceWorkDays">0</strong>
+    </div>
+
+    <div class="attendance-stat">
+      <span>💵 Lương thực tính</span>
+      <strong id="attendanceTotalSalary">0₫</strong>
+    </div>
+
+  </div>
+
+  <!-- LỊCH CHẤM CÔNG -->
+  <section class="card attendance-card">
+
+    <div class="section-title">
+      <h3>📅 Bảng chấm công tháng</h3>
+      <span class="badge" id="attendanceMonthLabel"></span>
+    </div>
+
+    <p class="attendance-note">
+      Nhấn vào ngày để đánh dấu đi làm hoặc nghỉ.
+      Ngày đi làm được tính một ngày công.
+    </p>
+
+    <div class="attendance-calendar" id="attendanceCalendar">
+      <div class="empty">Đang tải lịch chấm công...</div>
+    </div>
+
+    <div class="attendance-footer">
+      <span>🟢 Đã chấm công</span>
+      <span>⚪ Chưa chấm công</span>
+    </div>
+
+  </section>
 
 </main>
 </div>
 
 <script src="./app.js"></script>
+<script>
+/* CHẤM CÔNG: độc lập, lưu theo tháng trên thiết bị hiện tại */
+(() => {
+  const $ = (id) => document.getElementById(id);
+  const STORE_KEY = "motoWashAttendanceV1";
+  const monthInput = $("attendanceMonth");
+  const salaryInput = $("monthlySalary");
+  const saveSalaryButton = $("saveMonthlySalary");
+  const calendar = $("attendanceCalendar");
+  if (!monthInput || !salaryInput || !saveSalaryButton || !calendar) return;
+
+  let db = {};
+  try { db = JSON.parse(localStorage.getItem(STORE_KEY) || "{}") || {}; } catch (e) { db = {}; }
+  const now = new Date();
+  const pad = (n) => String(n).padStart(2, "0");
+  const monthKeyNow = `${now.getFullYear()}-${pad(now.getMonth() + 1)}`;
+  monthInput.value = monthKeyNow;
+  const money = (n) => `${Math.round(Number(n) || 0).toLocaleString("vi-VN")}₫`;
+  const parseMoney = (value) => { const digits = String(value || "").replace(/[^\d]/g, ""); return digits ? Number(digits) : 0; };
+  const daysInMonth = (key) => { const [year, month] = key.split("-").map(Number); return new Date(year, month, 0).getDate(); };
+  const ensureMonth = (key) => { if (!db[key]) db[key] = { salary: 0, days: {} }; if (!db[key].days) db[key].days = {}; return db[key]; };
+  const persist = () => { try { localStorage.setItem(STORE_KEY, JSON.stringify(db)); return true; } catch (e) { alert("Không lưu được dữ liệu chấm công trên thiết bị này. Hãy kiểm tra dung lượng trình duyệt."); return false; } };
+
+  function render() {
+    const key = monthInput.value || monthKeyNow;
+    const record = ensureMonth(key);
+    const [year, month] = key.split("-").map(Number);
+    const totalDays = daysInMonth(key);
+    const baseSalary = Number(record.salary) || 0;
+    const dailySalary = baseSalary / 30;
+    const workDays = Object.values(record.days).filter((v) => v === "work").length;
+    const totalSalary = Math.round(dailySalary * workDays);
+    salaryInput.value = baseSalary ? String(baseSalary) : "";
+    $("attendanceBaseSalary").textContent = money(baseSalary);
+    $("attendanceDailySalary").textContent = money(dailySalary);
+    $("attendanceWorkDays").textContent = `${workDays}/${totalDays} ngày`;
+    $("attendanceTotalSalary").textContent = money(totalSalary);
+    $("attendanceMonthLabel").textContent = `Tháng ${month}/${year}`;
+    const weekdays = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
+    const mondayOffset = (new Date(year, month - 1, 1).getDay() + 6) % 7;
+    let out = '<div class="attendance-weekdays">' + weekdays.map((d) => `<div class="attendance-weekday">${d}</div>`).join("") + '</div><div class="attendance-days">';
+    for (let i = 0; i < mondayOffset; i++) out += '<div class="attendance-day empty-day" aria-hidden="true"></div>';
+    for (let day = 1; day <= totalDays; day++) {
+      const state = record.days[String(day)] || "";
+      const isWork = state === "work", isOff = state === "off";
+      const stateLabel = isWork ? "Đi làm" : isOff ? "Nghỉ" : "Chưa chấm";
+      out += `<button type="button" class="attendance-day ${isWork ? "is-work" : ""} ${isOff ? "is-off" : ""}" data-day="${day}" aria-pressed="${isWork ? "true" : "false"}" title="Ngày ${day}: ${stateLabel}"><span class="day-number">${day}</span><span class="day-status">${isWork ? "✓ Đi làm" : isOff ? "Nghỉ" : "—"}</span></button>`;
+    }
+    calendar.innerHTML = out + '</div>';
+    calendar.querySelectorAll('button[data-day]').forEach((button) => button.addEventListener('click', () => {
+      const day = button.dataset.day, current = record.days[day] || "";
+      // Chạm lần 1: đi làm; lần 2: nghỉ; lần 3: chưa chấm.
+      const next = current === "" ? "work" : current === "work" ? "off" : "";
+      if (next) record.days[day] = next; else delete record.days[day];
+      persist(); render();
+    }));
+  }
+  saveSalaryButton.addEventListener('click', () => {
+    const key = monthInput.value || monthKeyNow;
+    ensureMonth(key).salary = parseMoney(salaryInput.value);
+    persist(); render();
+    saveSalaryButton.textContent = "✓ ĐÃ LƯU LƯƠNG";
+    setTimeout(() => { saveSalaryButton.textContent = "💾 LƯU LƯƠNG THÁNG"; }, 1400);
+  });
+  salaryInput.addEventListener('input', () => { $("attendanceDailySalary").textContent = money(parseMoney(salaryInput.value) / 30); });
+  monthInput.addEventListener('change', render);
+  if (!document.getElementById('attendance-inline-styles')) {
+    const style = document.createElement('style'); style.id = 'attendance-inline-styles';
+    style.textContent = `
+      .attendance-card{margin:16px 0;padding:18px}
+      #attendanceMonth,#monthlySalary{display:block;width:100%;box-sizing:border-box;min-height:46px;margin:8px 0 16px;padding:10px 12px;border:1px solid #d6e0eb;border-radius:12px;font-size:16px}
+      .attendance-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:12px;margin:16px 0}
+      .attendance-stat{background:#fff;border:1px solid #e2e8f0;border-radius:14px;padding:14px;display:flex;flex-direction:column;gap:8px}
+      .attendance-stat span{font-size:13px;color:#526173}.attendance-stat strong{font-size:clamp(17px,3vw,23px);overflow-wrap:anywhere}
+      .attendance-weekdays,.attendance-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+      .attendance-weekdays{margin:12px 0 6px}.attendance-weekday{text-align:center;font-weight:700;font-size:12px;color:#64748b;padding:6px 0}
+      .attendance-day{min-width:0;min-height:60px;border:1px solid #dce5ef;border-radius:10px;background:#f8fafc;color:#243447;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;padding:4px 1px;cursor:pointer}
+      .attendance-day .day-number{font-weight:800;font-size:16px}.attendance-day .day-status{font-size:10px;line-height:1.15}
+      .attendance-day.is-work{background:#dcfce7;border-color:#22c55e;color:#166534}.attendance-day.is-off{background:#fee2e2;border-color:#f87171;color:#991b1b}
+      .attendance-day.empty-day{visibility:hidden;border:0}.attendance-note{color:#64748b;font-size:14px;line-height:1.5}
+      .attendance-footer{display:flex;flex-wrap:wrap;gap:16px;margin-top:14px;font-size:13px;color:#526173}
+      @media(max-width:420px){.attendance-weekdays,.attendance-days{gap:3px}.attendance-day{min-height:52px;border-radius:8px}.attendance-day .day-status{font-size:9px}}
+    `; document.head.appendChild(style);
+  }
+  render();
+})();
+</script>
+
 <script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(console.error));
